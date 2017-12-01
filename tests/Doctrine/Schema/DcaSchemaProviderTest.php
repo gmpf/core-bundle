@@ -207,7 +207,10 @@ class DcaSchemaProviderTest extends DoctrineTestCase
 
     public function testReadsTheTableOptions(): void
     {
-        $provider = $this->getProvider(['tl_member' => ['TABLE_OPTIONS' => 'ENGINE=MyISAM DEFAULT CHARSET=utf8']]);
+        $provider = $this->getProvider(
+            ['tl_member' => ['TABLE_OPTIONS' => 'ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci']]
+        );
+
         $schema = $provider->createSchema();
 
         $this->assertCount(1, $schema->getTableNames());
@@ -215,15 +218,21 @@ class DcaSchemaProviderTest extends DoctrineTestCase
 
         $this->assertSame('MyISAM', $schema->getTable('tl_member')->getOption('engine'));
         $this->assertSame('utf8', $schema->getTable('tl_member')->getOption('charset'));
+        $this->assertSame('utf8_unicode_ci', $schema->getTable('tl_member')->getOption('collate'));
 
-        $provider = $this->getProvider([], ['tl_member' => ['TABLE_OPTIONS' => 'ENGINE=MyISAM DEFAULT CHARSET=utf8']]);
+        $provider = $this->getProvider(
+            [],
+            ['tl_member' => ['TABLE_OPTIONS' => 'ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci']]
+        );
+
         $schema = $provider->createSchema();
 
         $this->assertCount(1, $schema->getTableNames());
         $this->assertTrue($schema->hasTable('tl_member'));
 
         $this->assertSame('MyISAM', $schema->getTable('tl_member')->getOption('engine'));
-        $this->assertSame('utf8', $schema->getTable('tl_member')->getOption('charset'));
+        $this->assertSame('utf8mb4', $schema->getTable('tl_member')->getOption('charset'));
+        $this->assertSame('utf8mb4_unicode_ci', $schema->getTable('tl_member')->getOption('collate'));
 
         $provider = $this->getProvider(['tl_member' => ['TABLE_OPTIONS' => 'ENGINE=InnoDB DEFAULT CHARSET=Latin1']]);
         $schema = $provider->createSchema();
